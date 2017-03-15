@@ -117,6 +117,17 @@
                     $cnvs.on('canvasdraw.getsettings', function () {
                         return settings;
                     });
+					$cnvs.on('canvasdraw.loadboardurl', function (e, data) {
+                        var img = new Image();
+                        img.onload = function () {
+                            if (data.width && data.height) {
+                                ctx.drawImage(img, 0, 0, data.width, data.height);
+                            } else {
+                                ctx.drawImage(img, 0, 0, img.width, img.height);
+                            }
+                        };
+                        img.src = data.url;
+                    });
                     $cnvs.on('canvasdraw.resizeto', function (e, w, h) {
                         var imgData = null,
                             $resizeCnvs,
