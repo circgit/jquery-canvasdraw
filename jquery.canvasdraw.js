@@ -3,8 +3,9 @@
 /**
  * Name:            CanvasDraw
  * File:            jquery.canvasdraw.js
- * Version:         0.1
- * Author:          Raship Shah (shahraship@gmail.com)
+ * Version:         0.2
+ * Authors:         Rashid Fayyaz (rashidfiaz@gmail.com)
+ *                  Raship Shah (shahraship@gmail.com)
  * Description:     This jquery plugin is written to enable drawing on canvas.
  * USAGE:
  * ------------------------------------------------------------------------------------
@@ -117,7 +118,7 @@
                     $cnvs.on('canvasdraw.getsettings', function () {
                         return settings;
                     });
-					$cnvs.on('canvasdraw.loadboardurl', function (e, data) {
+                    $cnvs.on('canvasdraw.loadboardurl', function (e, data) {
                         var img = new Image();
                         img.onload = function () {
                             if (data.width && data.height) {
