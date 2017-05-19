@@ -4,8 +4,7 @@
  * Name:            CanvasDraw
  * File:            jquery.canvasdraw.js
  * Version:         0.2
- * Authors:         Rashid Fayyaz (rashidfiaz@gmail.com)
- *                  Raship Shah (shahraship@gmail.com)
+ * Authors:         
  * Description:     This jquery plugin is written to enable drawing on canvas.
  * USAGE:
  * ------------------------------------------------------------------------------------
@@ -15,6 +14,8 @@
 (function ($) {
     'use strict';
     var notUsingExCanvas = (window.G_vmlCanvasManager === 'undefined');
+    //var notUsingExCanvas = (window.G_vmlCanvasManager === 'undefined' || window.G_vmlCanvasManager ===  undefined);
+
     //private functions.
     function getContext($cnvs) {
         var ctx = null;
@@ -47,6 +48,14 @@
         }
         return r.join("\n");
     }
+
+    function sendEvent(event, data) {
+        if(userRole == "presenter") {
+            socket.emit(event, data);
+            fireEvent(data);
+        }
+    }
+
     $.fn.canvasdraw = function (options) {
         var settings = $.extend({}, $.fn.canvasdraw.defaults, options);
         //init each canvas
@@ -77,6 +86,8 @@
                 if (ctx) {
                     $cnvs.on('canvasdraw.setcolor', function (e, color) {
                         settings.writemodecolor = color;
+
+                        console.log(" canvasdraw.setcolor " + color);
                         if (settings.mode === 'write' || settings.mode === 'type') {
                             tmpctx.fillStyle = settings.writemodecolor;
                             tmpctx.strokeStyle = settings.writemodecolor;
@@ -87,6 +98,7 @@
                             ctxHistory.shift();
                         }
                         ctxHistory.push(ctx.getImageData(0, 0, $cnvs.width() - 1, $cnvs.height() - 1));
+                        console.log(ctxHistory);
                     });
                     $cnvs.on('canvasdraw.undoctxhistory', function () {
                         if (ctxHistory.length > 0) {
@@ -186,6 +198,7 @@
                             ctx.lineWidth = 10;
                             myctx = ctx;
                         } else if (settings.mode === 'write') {
+
                             if (!notUsingExCanvas) {
                                 $tmpcnvs.show();
                                 ctx.globalCompositeOperation = 'source-over';
@@ -196,7 +209,8 @@
                             ctx.lineWidth = 2;
                             $cnvs.trigger('canvasdraw.setcolor', [settings.writemodecolor]);
                             if (settings.scope && settings.method !== 'passive') {
-                                settings.scope.$broadcast('canvaspush', {'canvasdraw.setcolor': settings.writemodecolor, id: $cnvs.attr('id')});
+                                //settings.scope.$broadcast('canvaspush', {'canvasdraw.setcolor': settings.writemodecolor, id: $cnvs.attr('id')});
+                                settings.scope.$broadcast('canvaspush', {'event' :'canvasdraw.setcolor', 'data':[settings.writemodecolor], id: $cnvs.attr('id')});
                             }
                             if (!notUsingExCanvas) {
                                 myctx = tmpctx;
@@ -217,7 +231,8 @@
                             if (!notUsingExCanvas) {
                                 $cnvs.trigger('canvasdraw.addctxhistory', [true]);
                                 if (settings.scope && settings.method !== 'passive') {
-                                    settings.scope.$broadcast('canvaspush', {'canvasdraw.addctxhistory': true, id: $cnvs.attr('id')});
+                                    //settings.scope.$broadcast('canvaspush', {'canvasdraw.addctxhistory': true, id: $cnvs.attr('id')});
+                                    settings.scope.$broadcast('canvaspush', {'event' :'canvasdraw.addctxhistory', 'data':[true], id: $cnvs.attr('id')});
                                 }
                             }
                             ctx.save();
@@ -226,7 +241,8 @@
                             ctx.restore();
                             $cnvs.trigger('canvasdraw.setmode', [prevMode]);
                             if (settings.scope && settings.method !== 'passive') {
-                                settings.scope.$broadcast('canvaspush', {'canvasdraw.setmode': prevMode, id: $cnvs.attr('id')});
+                                //settings.scope.$broadcast('canvaspush', {'canvasdraw.setmode': prevMode, id: $cnvs.attr('id')});
+                                settings.scope.$broadcast('canvaspush', {'event' :'canvasdraw.setmode', 'data':[prevMode], id: $cnvs.attr('id')});
                             }
                         } else if (settings.mode === 'type') {
                             if (!notUsingExCanvas) {
@@ -240,7 +256,8 @@
                             ctx.lineWidth = 2;
                             $cnvs.trigger('canvasdraw.setcolor', [settings.writemodecolor]);
                             if (settings.scope && settings.method !== 'passive') {
-                                settings.scope.$broadcast('canvaspush', {'canvasdraw.setcolor': settings.writemodecolor, id: $cnvs.attr('id')});
+                                //settings.scope.$broadcast('canvaspush', {'canvasdraw.setcolor': settings.writemodecolor, id: $cnvs.attr('id')});
+                                settings.scope.$broadcast('canvaspush', {'event' :'canvasdraw.setcolor', 'data':[settings.writemodecolor], id: $cnvs.attr('id')});
                             }
                             if (!notUsingExCanvas) {
                                 myctx = tmpctx;
@@ -369,21 +386,24 @@
                                     }
                                     txtAreaOldVal = $(this).val();
                                     if (settings.scope) {
-                                        settings.scope.$broadcast('canvaspush', {'canvasdraw.updatetextarea': $(this).val(), id: $cnvs.attr('id')});
+                                        //settings.scope.$broadcast('canvaspush', {'canvasdraw.updatetextarea': $(this).val(), id: $cnvs.attr('id')});
+                                        settings.scope.$broadcast('canvaspush', {'event' :'canvasdraw.updatetextarea', 'data':[$(this).val()], id: $cnvs.attr('id')});
                                     }
                                 });
                             }
                             $btnSave.click(function () {
                                 $cnvs.trigger('canvasdraw.savetextarea', [{val: $txtArea.val(), rect: rect, id: $cnvs.attr('id')}]);
                                 if (settings.method === 'active' && settings.scope) {
-                                    settings.scope.$broadcast('canvaspush', {'canvasdraw.savetextarea': {val: $txtArea.val(), rect: rect}, id: $cnvs.attr('id')});
+                                    //settings.scope.$broadcast('canvaspush', {'canvasdraw.savetextarea': {val: $txtArea.val(), rect: rect}, id: $cnvs.attr('id')});
+                                    settings.scope.$broadcast('canvaspush', {'event' :'canvasdraw.savetextarea', 'data':[{val: $txtArea.val(), rect: rect}], id: $cnvs.attr('id')});
                                 }
                                 $btnCancel.trigger('click');
                             });
                             $btnCancel.click(function () {
                                 $cnvs.trigger('canvasdraw.removetextarea', [true]);
                                 if (settings.method === 'active' && settings.scope) {
-                                    settings.scope.$broadcast('canvaspush', {'canvasdraw.removetextarea': true, id: $cnvs.attr('id')});
+                                    //settings.scope.$broadcast('canvaspush', {'canvasdraw.removetextarea': true, id: $cnvs.attr('id')});
+                                    settings.scope.$broadcast('canvaspush', {'event' :'canvasdraw.removetextarea', 'data':[true], id: $cnvs.attr('id')});
                                 }
                             });
                             $cnvstxtarea.append($txtArea);
@@ -444,7 +464,8 @@
                                 if ((e.ctrlKey || e.metaKey) && e.which === 'Z'.charCodeAt()) {
                                     $cnvs.trigger('canvasdraw.undoctxhistory', [true]);
                                     if (settings.scope) {
-                                        settings.scope.$broadcast('canvaspush', {'canvasdraw.undoctxhistory': true, id: $cnvs.attr('id')});
+                                        //settings.scope.$broadcast('canvaspush', {'canvasdraw.undoctxhistory': true, id: $cnvs.attr('id')});
+                                        settings.scope.$broadcast('canvaspush', {'event' :'canvasdraw.undoctxhistory', 'data':[true], id: $cnvs.attr('id')});
                                     }
                                 }
                             });
@@ -452,14 +473,18 @@
                             $(document).off('keydown.canvasdraw');
                         });
                         tmpcnvsevts[myevts.start] = function (e) {
+                            console.log("*** Instructor Mouse down event fired.");
                             e.preventDefault();
                             $workarea.on(myevts.out, function () {
+                                console.log("*** Instructor Mouse Out event fired.");
+
                                 $tmpcnvs.trigger(myevts.stop);
                             });
                             if (!notUsingExCanvas) {
                                 $cnvs.trigger('canvasdraw.addctxhistory', [true]);
                                 if (settings.scope) {
-                                    settings.scope.$broadcast('canvaspush', {'canvasdraw.addctxhistory': true, id: $cnvs.attr('id')});
+                                    //settings.scope.$broadcast('canvaspush', {'canvasdraw.addctxhistory': true, id: $cnvs.attr('id')});
+                                    settings.scope.$broadcast('canvaspush', {'event' :'canvasdraw.addctxhistory', 'data':[true], id: $cnvs.attr('id')});
                                 }
                             }
                             var parentOffset = $(this).parent().offset(),
@@ -476,22 +501,27 @@
                             if (e.shiftKey) {
                                 $cnvs.trigger('canvasdraw.startlinedraw', [true]);
                                 if (settings.scope) {
-                                    settings.scope.$broadcast('canvaspush', {'canvasdraw.startlinedraw': true, id: $cnvs.attr('id')});
+                                    //settings.scope.$broadcast('canvaspush', {'canvasdraw.startlinedraw': true, id: $cnvs.attr('id')});
+                                    settings.scope.$broadcast('canvaspush', {'event' :'canvasdraw.startlinedraw', 'data':[true], id: $cnvs.attr('id')});
                                 }
                             } else {
                                 if (settings.mode === 'write') {
                                     $cnvs.trigger('canvasdraw.startpath', [true]);
                                     if (settings.scope) {
-                                        settings.scope.$broadcast('canvaspush', {'canvasdraw.startpath': true, id: $cnvs.attr('id')});
+                                        //settings.scope.$broadcast('canvaspush', {'canvasdraw.startpath': true, id: $cnvs.attr('id')});
+                                        settings.scope.$broadcast('canvaspush', {'event' :'canvasdraw.startpath', 'data':[true], id: $cnvs.attr('id')});
                                     }
                                 } else {
                                     $cnvs.trigger('canvasdraw.startextarea', [true]);
                                     if (settings.scope) {
-                                        settings.scope.$broadcast('canvaspush', {'canvasdraw.startextarea': true, id: $cnvs.attr('id')});
+                                        //settings.scope.$broadcast('canvaspush', {'canvasdraw.startextarea': true, id: $cnvs.attr('id')});
+                                        settings.scope.$broadcast('canvaspush', {'event' :'canvasdraw.startextarea', 'data':[true], id: $cnvs.attr('id')});
                                     }
                                 }
                             }
                             $(this).on(myevts.move, function (e) {
+                                console.log("*** Instructor Mouse Move event fired.");
+
                                 e.preventDefault();
                                 if (e.originalEvent && e.originalEvent.targetTouches && e.originalEvent.targetTouches.length > 0) {
                                     mouse.x = e.originalEvent.targetTouches[0].pageX - parentOffset.left;
@@ -505,18 +535,21 @@
                                         if (!drawLine) {
                                             $cnvs.trigger('canvasdraw.pathpoints', [{x: mouse.x, y: mouse.y}]);
                                             if (settings.scope) {
-                                                settings.scope.$broadcast('canvaspush', {'canvasdraw.pathpoints': {x: mouse.x, y: mouse.y, cw: width, ch: height}, id: $cnvs.attr('id')});
+                                                //settings.scope.$broadcast('canvaspush', {'canvasdraw.pathpoints': {x: mouse.x, y: mouse.y, cw: width, ch: height}, id: $cnvs.attr('id')});
+                                                settings.scope.$broadcast('canvaspush', {'event' :'canvasdraw.pathpoints', 'data':[{x: mouse.x, y: mouse.y, cw: width, ch: height}], id: $cnvs.attr('id')});
                                             }
                                         } else {
                                             $cnvs.trigger('canvasdraw.linepoints', [{x0: x0, y0: y0, x: mouse.x, y: mouse.y}]);
                                             if (settings.scope) {
-                                                settings.scope.$broadcast('canvaspush', {'canvasdraw.linepoints': {x0: x0, y0: y0, x: mouse.x, y: mouse.y, cw: width, ch: height}, id: $cnvs.attr('id')});
+                                                //settings.scope.$broadcast('canvaspush', {'canvasdraw.linepoints': {x0: x0, y0: y0, x: mouse.x, y: mouse.y, cw: width, ch: height}, id: $cnvs.attr('id')});
+                                                settings.scope.$broadcast('canvaspush', {'event' :'canvasdraw.linepoints', 'data':[{x0: x0, y0: y0, x: mouse.x, y: mouse.y, cw: width, ch: height}], id: $cnvs.attr('id')});
                                             }
                                         }
                                     } else if (settings.mode === 'type') {
                                         $cnvs.trigger('canvasdraw.textareapoints', [{x: Math.min(mouse.x, x0), y: Math.min(mouse.y, y0), w: Math.abs(mouse.x - x0), h: Math.abs(mouse.y - y0)}]);
                                         if (settings.scope) {
-                                            settings.scope.$broadcast('canvaspush', {'canvasdraw.textareapoints': {x: Math.min(mouse.x, x0), y: Math.min(mouse.y, y0), w: Math.abs(mouse.x - x0), h: Math.abs(mouse.y - y0), cw: width, ch: height}, id: $cnvs.attr('id')});
+                                            //settings.scope.$broadcast('canvaspush', {'canvasdraw.textareapoints': {x: Math.min(mouse.x, x0), y: Math.min(mouse.y, y0), w: Math.abs(mouse.x - x0), h: Math.abs(mouse.y - y0), cw: width, ch: height}, id: $cnvs.attr('id')});
+                                            settings.scope.$broadcast('canvaspush', {'event' :'canvasdraw.textareapoints', 'data':[{x: Math.min(mouse.x, x0), y: Math.min(mouse.y, y0), w: Math.abs(mouse.x - x0), h: Math.abs(mouse.y - y0), cw: width, ch: height}], id: $cnvs.attr('id')});
                                         }
                                     }
                                 }
@@ -524,6 +557,8 @@
                             $(this).trigger(myevts.move);
                         };
                         tmpcnvsevts[myevts.stop] = function (e) {
+                            console.log("*** Instructor Mouse UP event fired.");
+
                             e.preventDefault();
                             $(this).off(myevts.move);
                             $workarea.off(myevts.out);
@@ -531,7 +566,8 @@
                                 if (!drawLine) {
                                     $cnvs.trigger('canvasdraw.stoppath', [true]);
                                     if (settings.scope) {
-                                        settings.scope.$broadcast('canvaspush', {'canvasdraw.stoppath': true, id: $cnvs.attr('id')});
+                                        //settings.scope.$broadcast('canvaspush', {'canvasdraw.stoppath': true, id: $cnvs.attr('id')});
+                                        settings.scope.$broadcast('canvaspush', {'event' :'canvasdraw.stoppath', 'data':[true], id: $cnvs.attr('id')});
                                     }
                                 } else {
                                     $cnvs.trigger('canvasdraw.stoplinedraw', [true]);
@@ -542,7 +578,8 @@
                             } else if (settings.mode === 'type') {
                                 $cnvs.trigger('canvasdraw.stoptextarea', [true]);
                                 if (settings.scope) {
-                                    settings.scope.$broadcast('canvaspush', {'canvasdraw.stoptextarea': true, id: $cnvs.attr('id')});
+                                    //settings.scope.$broadcast('canvaspush', {'canvasdraw.stoptextarea': true, id: $cnvs.attr('id')});
+                                    settings.scope.$broadcast('canvaspush', {'event' :'canvasdraw.stoptextarea', 'data':[true], id: $cnvs.attr('id')});
                                 }
                             }
                         };
@@ -550,17 +587,20 @@
                         cnvsevts[myevts.start] = function (e) {
                             e.preventDefault();
                             $workarea.on(myevts.out, function () {
+                                console.log("*** Instructor Mouse Out event fired.");
                                 $cnvs.trigger(myevts.stop);
                             });
                             if (!notUsingExCanvas) {
                                 $cnvs.trigger('canvasdraw.addctxhistory', [true]);
                                 if (settings.scope) {
-                                    settings.scope.$broadcast('canvaspush', {'canvasdraw.addctxhistory': true, id: $cnvs.attr('id')});
+                                    //settings.scope.$broadcast('canvaspush', {'canvasdraw.addctxhistory': true, id: $cnvs.attr('id')});
+                                    settings.scope.$broadcast('canvaspush', {'event' :'canvasdraw.addctxhistory', 'data':[true], id: $cnvs.attr('id')});
                                 }
                             }
                             $cnvs.trigger('canvasdraw.startpath', [true]);
                             if (settings.scope) {
-                                settings.scope.$broadcast('canvaspush', {'canvasdraw.startpath': true, id: $cnvs.attr('id')});
+                                //settings.scope.$broadcast('canvaspush', {'canvasdraw.startpath': true, id: $cnvs.attr('id')});
+                                settings.scope.$broadcast('canvaspush', {'event' :'canvasdraw.startpath', 'data':[true], id: $cnvs.attr('id')});
                             }
                             $(this).on(myevts.move, function (e) {
                                 e.preventDefault();
@@ -575,7 +615,8 @@
                                 if (!isNaN(mouse.x) && !isNaN(mouse.y)) {
                                     $cnvs.trigger('canvasdraw.pathpoints', [{x: mouse.x, y: mouse.y}]);
                                     if (settings.scope) {
-                                        settings.scope.$broadcast('canvaspush', {'canvasdraw.pathpoints': {x: mouse.x, y: mouse.y, cw: width, ch: height}, id: $cnvs.attr('id')});
+                                        //settings.scope.$broadcast('canvaspush', {'canvasdraw.pathpoints': {x: mouse.x, y: mouse.y, cw: width, ch: height}, id: $cnvs.attr('id')});
+                                        settings.scope.$broadcast('canvaspush', {'event' :'canvasdraw.startpath', 'data':[{x: mouse.x, y: mouse.y, cw: width, ch: height}], id: $cnvs.attr('id')});
                                     }
                                 }
                             });
@@ -587,7 +628,8 @@
                             $workarea.off(myevts.out);
                             $cnvs.trigger('canvasdraw.stoppath', [true]);
                             if (settings.scope) {
-                                settings.scope.$broadcast('canvaspush', {'canvasdraw.stoppath': true, id: $cnvs.attr('id')});
+                                //settings.scope.$broadcast('canvaspush', {'canvasdraw.stoppath': true, id: $cnvs.attr('id')});
+                                settings.scope.$broadcast('canvaspush', {'event' :'canvasdraw.stoppath', 'data':[true], id: $cnvs.attr('id')});
                             }
                         };
                         $cnvs.on(cnvsevts);
