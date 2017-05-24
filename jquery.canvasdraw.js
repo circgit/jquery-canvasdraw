@@ -4,7 +4,8 @@
  * Name:            CanvasDraw
  * File:            jquery.canvasdraw.js
  * Version:         0.2
- * Authors:         
+ * Authors:         Rashid Fayyaz (rashidfiaz@gmail.com)
+ *                  Raship Shah (shahraship@gmail.com)
  * Description:     This jquery plugin is written to enable drawing on canvas.
  * USAGE:
  * ------------------------------------------------------------------------------------
@@ -85,20 +86,24 @@
                 height = $cnvs.height();
                 if (ctx) {
                     $cnvs.on('canvasdraw.setcolor', function (e, color) {
-                        settings.writemodecolor = color;
+                        //Don't allow erase color to be changed.
+                        /*if(settings.mode === 'erase' && color != settings.erasemodecolor)
+                            return;*/
 
-                        console.log(" canvasdraw.setcolor " + color);
-                        if (settings.mode === 'write' || settings.mode === 'type') {
+                        settings.writemodecolor = color;
+                        if (settings.mode === 'write' || settings.mode === 'type' || settings.mode === 'erase' ) {
                             tmpctx.fillStyle = settings.writemodecolor;
                             tmpctx.strokeStyle = settings.writemodecolor;
                         }
+
+                        /*tmpctx.lineWidth = settings.mode === 'erase' ? 10 : 1;*/
                     });
+
                     $cnvs.on('canvasdraw.addctxhistory', function () {
                         if (ctxHistory.length === 15) {
                             ctxHistory.shift();
                         }
                         ctxHistory.push(ctx.getImageData(0, 0, $cnvs.width() - 1, $cnvs.height() - 1));
-                        console.log(ctxHistory);
                     });
                     $cnvs.on('canvasdraw.undoctxhistory', function () {
                         if (ctxHistory.length > 0) {
@@ -198,6 +203,7 @@
                             ctx.lineWidth = 10;
                             myctx = ctx;
                         } else if (settings.mode === 'write') {
+                             //settings.writemodecolor = settings.lastwritemodecolor;
 
                             if (!notUsingExCanvas) {
                                 $tmpcnvs.show();
@@ -473,11 +479,8 @@
                             $(document).off('keydown.canvasdraw');
                         });
                         tmpcnvsevts[myevts.start] = function (e) {
-                            console.log("*** Instructor Mouse down event fired.");
                             e.preventDefault();
                             $workarea.on(myevts.out, function () {
-                                console.log("*** Instructor Mouse Out event fired.");
-
                                 $tmpcnvs.trigger(myevts.stop);
                             });
                             if (!notUsingExCanvas) {
@@ -520,8 +523,6 @@
                                 }
                             }
                             $(this).on(myevts.move, function (e) {
-                                console.log("*** Instructor Mouse Move event fired.");
-
                                 e.preventDefault();
                                 if (e.originalEvent && e.originalEvent.targetTouches && e.originalEvent.targetTouches.length > 0) {
                                     mouse.x = e.originalEvent.targetTouches[0].pageX - parentOffset.left;
@@ -557,8 +558,6 @@
                             $(this).trigger(myevts.move);
                         };
                         tmpcnvsevts[myevts.stop] = function (e) {
-                            console.log("*** Instructor Mouse UP event fired.");
-
                             e.preventDefault();
                             $(this).off(myevts.move);
                             $workarea.off(myevts.out);
@@ -587,7 +586,6 @@
                         cnvsevts[myevts.start] = function (e) {
                             e.preventDefault();
                             $workarea.on(myevts.out, function () {
-                                console.log("*** Instructor Mouse Out event fired.");
                                 $cnvs.trigger(myevts.stop);
                             });
                             if (!notUsingExCanvas) {
@@ -616,7 +614,7 @@
                                     $cnvs.trigger('canvasdraw.pathpoints', [{x: mouse.x, y: mouse.y}]);
                                     if (settings.scope) {
                                         //settings.scope.$broadcast('canvaspush', {'canvasdraw.pathpoints': {x: mouse.x, y: mouse.y, cw: width, ch: height}, id: $cnvs.attr('id')});
-                                        settings.scope.$broadcast('canvaspush', {'event' :'canvasdraw.startpath', 'data':[{x: mouse.x, y: mouse.y, cw: width, ch: height}], id: $cnvs.attr('id')});
+                                        settings.scope.$broadcast('canvaspush', {'event' :'canvasdraw.pathpoints', 'data':[{x: mouse.x, y: mouse.y, cw: width, ch: height}], id: $cnvs.attr('id')});
                                     }
                                 }
                             });
@@ -642,6 +640,7 @@
     $.fn.canvasdraw.defaults = {
         mode: 'write',
         writemodecolor: '#000000',
+        erasemodecolor : 'rgba(255,255,255,1)',
         method: 'passive',
         fixedsize: {width: 846, height: 579},
         scope: null
