@@ -86,10 +86,6 @@
                 height = $cnvs.height();
                 if (ctx) {
                     $cnvs.on('canvasdraw.setcolor', function (e, color) {
-                        //Don't allow erase color to be changed.
-                        /*if(settings.mode === 'erase' && color != settings.erasemodecolor)
-                            return;*/
-
                         settings.writemodecolor = color;
                         if (settings.mode === 'write' || settings.mode === 'type' || settings.mode === 'erase' ) {
                             tmpctx.fillStyle = settings.writemodecolor;
@@ -640,7 +636,6 @@
     $.fn.canvasdraw.defaults = {
         mode: 'write',
         writemodecolor: '#000000',
-        erasemodecolor : 'rgba(255,255,255,1)',
         method: 'passive',
         fixedsize: {width: 846, height: 579},
         scope: null
