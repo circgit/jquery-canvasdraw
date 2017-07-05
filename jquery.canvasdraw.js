@@ -50,13 +50,6 @@
         return r.join("\n");
     }
 
-    function sendEvent(event, data) {
-        if(userRole == "presenter") {
-            socket.emit(event, data);
-            fireEvent(data);
-        }
-    }
-
     $.fn.canvasdraw = function (options) {
         var settings = $.extend({}, $.fn.canvasdraw.defaults, options);
         //init each canvas
@@ -460,7 +453,17 @@
                     $cnvs.after($tmpcnvs);
                     tmpctx = getContext($tmpcnvs);
                     if (settings.method === 'active') {
-                        myevts = {start: 'mousedown touchstart', stop: 'mouseup touchend', move: 'mousemove touchmove', out: 'mouseout.canvasdraw touchleave.canvasdraw'};
+                        //Only Instructor can have access on canvas to draw. Student can receive events ...
+                        if(settings.usertype == "S") {
+                            myevts = {};
+                        } else {
+                            myevts = {
+                                start: 'mousedown touchstart',
+                                stop: 'mouseup touchend',
+                                move: 'mousemove touchmove',
+                                out: 'mouseout.canvasdraw touchleave.canvasdraw'
+                            };
+                        }
                         $workarea.on('mouseenter.canvasdraw', function () {
                             $(document).on('keydown.canvasdraw', function (e) {
                                 if ((e.ctrlKey || e.metaKey) && e.which === 'Z'.charCodeAt()) {
@@ -512,10 +515,10 @@
                                     }
                                 } else {
                                     $cnvs.trigger('canvasdraw.startextarea', [true]);
-                                    if (settings.scope) {
+                                    /*if (settings.scope) {
                                         //settings.scope.$broadcast('canvaspush', {'canvasdraw.startextarea': true, id: $cnvs.attr('id')});
                                         settings.scope.$broadcast('canvaspush', {'event' :'canvasdraw.startextarea', 'data':[true], id: $cnvs.attr('id')});
-                                    }
+                                    }*/
                                 }
                             }
                             $(this).on(myevts.move, function (e) {
@@ -544,10 +547,10 @@
                                         }
                                     } else if (settings.mode === 'type') {
                                         $cnvs.trigger('canvasdraw.textareapoints', [{x: Math.min(mouse.x, x0), y: Math.min(mouse.y, y0), w: Math.abs(mouse.x - x0), h: Math.abs(mouse.y - y0)}]);
-                                        if (settings.scope) {
+                                        /*if (settings.scope) {
                                             //settings.scope.$broadcast('canvaspush', {'canvasdraw.textareapoints': {x: Math.min(mouse.x, x0), y: Math.min(mouse.y, y0), w: Math.abs(mouse.x - x0), h: Math.abs(mouse.y - y0), cw: width, ch: height}, id: $cnvs.attr('id')});
                                             settings.scope.$broadcast('canvaspush', {'event' :'canvasdraw.textareapoints', 'data':[{x: Math.min(mouse.x, x0), y: Math.min(mouse.y, y0), w: Math.abs(mouse.x - x0), h: Math.abs(mouse.y - y0), cw: width, ch: height}], id: $cnvs.attr('id')});
-                                        }
+                                        }*/
                                     }
                                 }
                             });
@@ -572,10 +575,10 @@
                                 }
                             } else if (settings.mode === 'type') {
                                 $cnvs.trigger('canvasdraw.stoptextarea', [true]);
-                                if (settings.scope) {
+                                /*if (settings.scope) {
                                     //settings.scope.$broadcast('canvaspush', {'canvasdraw.stoptextarea': true, id: $cnvs.attr('id')});
                                     settings.scope.$broadcast('canvaspush', {'event' :'canvasdraw.stoptextarea', 'data':[true], id: $cnvs.attr('id')});
-                                }
+                                }*/
                             }
                         };
                         $tmpcnvs.on(tmpcnvsevts);
@@ -638,6 +641,7 @@
         writemodecolor: '#000000',
         method: 'passive',
         fixedsize: {width: 846, height: 579},
-        scope: null
+        scope: null,
+        usertype:"I"
     };
 }(jQuery));
