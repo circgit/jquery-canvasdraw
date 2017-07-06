@@ -192,7 +192,7 @@
                             ctx.lineWidth = 10;
                             myctx = ctx;
                         } else if (settings.mode === 'write') {
-                             //settings.writemodecolor = settings.lastwritemodecolor;
+                            //settings.writemodecolor = settings.lastwritemodecolor;
 
                             if (!notUsingExCanvas) {
                                 $tmpcnvs.show();
@@ -516,9 +516,9 @@
                                 } else {
                                     $cnvs.trigger('canvasdraw.startextarea', [true]);
                                     /*if (settings.scope) {
-                                        //settings.scope.$broadcast('canvaspush', {'canvasdraw.startextarea': true, id: $cnvs.attr('id')});
-                                        settings.scope.$broadcast('canvaspush', {'event' :'canvasdraw.startextarea', 'data':[true], id: $cnvs.attr('id')});
-                                    }*/
+                                     //settings.scope.$broadcast('canvaspush', {'canvasdraw.startextarea': true, id: $cnvs.attr('id')});
+                                     settings.scope.$broadcast('canvaspush', {'event' :'canvasdraw.startextarea', 'data':[true], id: $cnvs.attr('id')});
+                                     }*/
                                 }
                             }
                             $(this).on(myevts.move, function (e) {
@@ -548,9 +548,9 @@
                                     } else if (settings.mode === 'type') {
                                         $cnvs.trigger('canvasdraw.textareapoints', [{x: Math.min(mouse.x, x0), y: Math.min(mouse.y, y0), w: Math.abs(mouse.x - x0), h: Math.abs(mouse.y - y0)}]);
                                         /*if (settings.scope) {
-                                            //settings.scope.$broadcast('canvaspush', {'canvasdraw.textareapoints': {x: Math.min(mouse.x, x0), y: Math.min(mouse.y, y0), w: Math.abs(mouse.x - x0), h: Math.abs(mouse.y - y0), cw: width, ch: height}, id: $cnvs.attr('id')});
-                                            settings.scope.$broadcast('canvaspush', {'event' :'canvasdraw.textareapoints', 'data':[{x: Math.min(mouse.x, x0), y: Math.min(mouse.y, y0), w: Math.abs(mouse.x - x0), h: Math.abs(mouse.y - y0), cw: width, ch: height}], id: $cnvs.attr('id')});
-                                        }*/
+                                         //settings.scope.$broadcast('canvaspush', {'canvasdraw.textareapoints': {x: Math.min(mouse.x, x0), y: Math.min(mouse.y, y0), w: Math.abs(mouse.x - x0), h: Math.abs(mouse.y - y0), cw: width, ch: height}, id: $cnvs.attr('id')});
+                                         settings.scope.$broadcast('canvaspush', {'event' :'canvasdraw.textareapoints', 'data':[{x: Math.min(mouse.x, x0), y: Math.min(mouse.y, y0), w: Math.abs(mouse.x - x0), h: Math.abs(mouse.y - y0), cw: width, ch: height}], id: $cnvs.attr('id')});
+                                         }*/
                                     }
                                 }
                             });
@@ -576,9 +576,9 @@
                             } else if (settings.mode === 'type') {
                                 $cnvs.trigger('canvasdraw.stoptextarea', [true]);
                                 /*if (settings.scope) {
-                                    //settings.scope.$broadcast('canvaspush', {'canvasdraw.stoptextarea': true, id: $cnvs.attr('id')});
-                                    settings.scope.$broadcast('canvaspush', {'event' :'canvasdraw.stoptextarea', 'data':[true], id: $cnvs.attr('id')});
-                                }*/
+                                 //settings.scope.$broadcast('canvaspush', {'canvasdraw.stoptextarea': true, id: $cnvs.attr('id')});
+                                 settings.scope.$broadcast('canvaspush', {'event' :'canvasdraw.stoptextarea', 'data':[true], id: $cnvs.attr('id')});
+                                 }*/
                             }
                         };
                         $tmpcnvs.on(tmpcnvsevts);
