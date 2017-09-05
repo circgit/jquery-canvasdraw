@@ -113,7 +113,7 @@
                             if (data.width && data.height) {
                                 ctx.drawImage(img, 0, 0, data.width, data.height);
                             } else {
-                                var maxwidth = 1200;
+                                var maxwidth = 700;
                                 var ratio = maxwidth / img.width;
                                 var maxheight = img.height * ratio;
                                 ctx.drawImage(img, 0, 0, img.width, img.height, 0, 0, maxwidth, maxheight);
