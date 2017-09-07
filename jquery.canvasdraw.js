@@ -4,8 +4,9 @@
  * Name:            CanvasDraw
  * File:            jquery.canvasdraw.js
  * Version:         0.2
- * Authors:         Rashid Fayyaz (rashidfiaz@gmail.com)
- *                  Raship Shah (shahraship@gmail.com)
+ * Authors:         Viren Patel (viren.r.patel@gmail.com)
+                    Rashid Fayyaz (rashidfiaz@gmail.com)
+ *                  Raship Shah (shahraship@gmail.com)                    
  * Description:     This jquery plugin is written to enable drawing on canvas.
  * USAGE:
  * ------------------------------------------------------------------------------------
@@ -113,7 +114,7 @@
                             if (data.width && data.height) {
                                 ctx.drawImage(img, 0, 0, data.width, data.height);
                             } else {
-                                var maxwidth = 1064;
+                                var maxwidth = 1000;
                                 var ratio = maxwidth / img.width;
                                 var maxheight = img.height * ratio;
                                 ctx.drawImage(img, 0, 0, img.width, img.height, 0, 0, maxwidth, maxheight);
