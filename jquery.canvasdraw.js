@@ -111,6 +111,7 @@
                     $cnvs.on('canvasdraw.loadimageurl', function (e, data) {
                         var img = new Image();
                         img.onload = function () {
+                            ctx.globalCompositeOperation='destination-over';
                             if (data.width && data.height) {
                                 ctx.drawImage(img, 0, 0, data.width, data.height);
                             } else {
@@ -119,6 +120,7 @@
                                 var maxheight = img.height * ratio;
                                 ctx.drawImage(img, 0, 0, img.width, img.height, 0, 0, maxwidth, maxheight);
                             }
+                            ctx.globalCompositeOperation="source-over";
                         };
                         img.src = data.url;
                     });
